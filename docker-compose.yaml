@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: 'YourStrong0Passw0rd'
+      ACCEPT_EULA: 'Y'
+    ports:
+      - 1433:1433
+  
+  web:
+    build: ./web
+    ports:
+      - 3000:3000
+    volumes:
+      - ./web:/usr/share/node/src/april-react
+  
+  api:
+    build: ./api
+    volumes:
+      - ./db/scripts:/scripts
+    ports:
+      - 8000:8000
