@@ -6,12 +6,15 @@ services:
       SA_PASSWORD: 'YourStrong0Passw0rd'
       ACCEPT_EULA: 'Y'
     ports:
-      - 1433:1433
+      - 127.0.0.1:1433:1433
   
   web:
     build: ./web
     ports:
-      - 3000:3000
+      - 127.0.0.1:3000:3000
+    depends_on:
+      - api
+      - db
     volumes:
       - ./web:/usr/share/node/src/april-react
   
@@ -20,4 +23,6 @@ services:
     volumes:
       - ./db/scripts:/scripts
     ports:
-      - 8000:8000
+      - 127.0.0.1:8000:8000
+    depends_on:
+      - db
