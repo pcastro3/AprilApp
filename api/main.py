@@ -1,4 +1,5 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks
+from send_email import send_email_async
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import models
@@ -36,6 +37,7 @@ class UserModel(UserBase):
     class Config:
         orm_mode = True
 
+
 # Dependency
 def get_db():
     db = SessionLocal()
@@ -43,7 +45,7 @@ def get_db():
         yield db
     finally:
         db.close()
-    
+
 @app.get("/users/", response_model=UserModel)
 def read_users(limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.Users).limit(limit).all()
@@ -56,6 +58,14 @@ def read_user_by_email(email: str, db: Session = Depends(get_db)):
     else:
         return result    
 
+@app.get("/confirm/async/")
+async def confirm_email(db: Session = Depends(get_db)):
+    await send_email_async('Hello World', '{models.Users.email}', {
+        'title': 'Confirm Email', 
+        'name': 'John Doe'
+    })
+    return 'Success'
+
 @app.post("/users/", response_model=UserModel)
 def create_user(user: UserBase, db: Session = Depends(get_db)):
     db_user = models.Users(first_name=user.first_name, last_name=user.last_name, email=user.email, password=user.password)
@@ -65,4 +75,5 @@ def create_user(user: UserBase, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
     return db_user
