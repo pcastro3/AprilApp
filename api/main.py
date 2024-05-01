@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import models
+import webbrowser
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -41,6 +42,10 @@ class UserModel(UserBase):
     class Config:
         orm_mode = True
 
+class UserLoginModel(BaseModel):
+    email: str
+    password: str
+
 # Dependency
 def get_db():
     db = SessionLocal()
@@ -49,40 +54,20 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/users/", response_model=UserModel)
-def read_users(limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(models.Users).limit(limit).all()
-    
-@app.get("/confirm/{email}", response_model=UserModel)
-def confirm_email(email: str, db: Session = Depends(get_db)):
-    db_user = db.query(models.Users).filter(models.Users.email == email).first()
+@app.get("/confirm/redirect/{id}", response_model=UserModel)
+def confirmation_path(id: int, db: Session = Depends(get_db)):
+    # Redirect
+    webbrowser.open('http://127.0.0.1:3000/login')
+    # Find user and change confirmation state
+    db_user = db.query(models.Users).filter(models.Users.id == id).first()
     db_user.is_confirmed = 1
     db.commit()
     
-    print(db_user.id)
-    print(db_user.is_confirmed)
-    
-    return db_user   
-
-@app.get("/confirm/{url}", response_model=UserModel)
-def confirmation_path(url: str, db: Session = Depends(get_db)):
-    # url - strip email (or id) from end
-    # pass email to confirm_email(), which updates db that email has been confirmed
-    # confirm_email(email)
-    # this function will redirect user to the login page
-    # modify code so that it takes user id instead of the email in the confirmation link
+    print(id)
+    print(type(id))
     print("Hello")
-
-
-@app.put("/confirm/async/{email}", response_model=UserModel)
-async def confirm_email(email: str, is_confirmed: UserModel, db: Session = Depends(get_db)):
-    db_user = db.query(models.Users).filter(models.Users.email == email).first()
-    db_user.is_confirmed = 1
-    db.commit()
     
-    print(db_user.is_confirmed)
-    
-    return db_user
+    return db_user 
 
 @app.post("/users/", response_model=UserModel)
 def create_user(user: UserBase, db: Session = Depends(get_db)):
@@ -95,14 +80,10 @@ def create_user(user: UserBase, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit() 
     db.refresh(db_user)
-    token = user.email
-    confirm_url = 'http://127.0.0.1:8000/confirm/' + user.email
+    confirm_url = 'http://127.0.0.1:8000/confirm/redirect/' + repr(db_user.id)
     
     ############# Email Template And Send ############################
 
-    # def send_confirmation():
-        
-    
     title = 'Confirm Your Email Here!'
     msg_content = '<p><a href="{confirm_url}" onclick="send_confirmation">{title}</a></p>'.format(title=title, confirm_url=confirm_url)
     message = MIMEText(msg_content, 'html')
@@ -121,3 +102,15 @@ def create_user(user: UserBase, db: Session = Depends(get_db)):
     
     return db_user
 
+@app.post("/users/login/")
+def login_user(user: UserLoginModel, db: Session = Depends(get_db)):
+    db_user = db.query(models.Users).filter(models.Users.email == user.email).first()
+    
+    # if not db_email:
+    #     raise HTTPException(status_code=404, detail="User Does Not Exist")
+    
+    if db_user.email == user.email and db_user.password == user.password and db_user.is_confirmed == True:
+        webbrowser.open('http://127.0.0.1:3000/landing', new=0)
+        print("Hi")
+    else:
+        print('Invalid Credentials. Please Try Again')    

@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import Api from '../Api';
 
 function LogIn() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [formLoginData, setFormLoginData] = useState({
     email: '',
@@ -19,21 +19,7 @@ function LogIn() {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-
-    try {
-      const response = await Api.get(`/users/${formLoginData.email}`);
-      const result = response.data  
-
-      if (result.email === formLoginData.email && result.password === formLoginData.password) {
-        console.log("Successful Log In!");
-  
-        navigate("/Landing");
-      } else {
-        console.log("Unsuccessful Log In.");
-      }
-    } catch (error) {
-      console.log(error.response.data.detail);
-    }
+    await Api.post('/users/login/', formLoginData);
   }  
 
   return (
