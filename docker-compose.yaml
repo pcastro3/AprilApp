@@ -14,7 +14,6 @@ services:
       - 127.0.0.1:3000:3000
     depends_on:
       - api
-      - db
     volumes:
       - ./web:/usr/share/node/src/april-react
   

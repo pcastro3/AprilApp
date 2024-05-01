@@ -54,7 +54,7 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/confirm/redirect/{id}", response_model=UserModel)
+@app.get("/confirm/redirect/{id}")
 def confirmation_path(id: int, db: Session = Depends(get_db)):
     # Redirect
     webbrowser.open('http://127.0.0.1:3000/login')
@@ -63,11 +63,6 @@ def confirmation_path(id: int, db: Session = Depends(get_db)):
     db_user.is_confirmed = 1
     db.commit()
     
-    print(id)
-    print(type(id))
-    print("Hello")
-    
-    return db_user 
 
 @app.post("/users/", response_model=UserModel)
 def create_user(user: UserBase, db: Session = Depends(get_db)):
@@ -106,11 +101,7 @@ def create_user(user: UserBase, db: Session = Depends(get_db)):
 def login_user(user: UserLoginModel, db: Session = Depends(get_db)):
     db_user = db.query(models.Users).filter(models.Users.email == user.email).first()
     
-    # if not db_email:
-    #     raise HTTPException(status_code=404, detail="User Does Not Exist")
-    
     if db_user.email == user.email and db_user.password == user.password and db_user.is_confirmed == True:
-        webbrowser.open('http://127.0.0.1:3000/landing', new=0)
-        print("Hi")
+        webbrowser.open('http://127.0.0.1:3000/landing')
     else:
         print('Invalid Credentials. Please Try Again')    

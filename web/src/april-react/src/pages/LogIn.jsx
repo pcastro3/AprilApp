@@ -1,9 +1,7 @@
 import { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
 import Api from '../Api';
 
 function LogIn() {
-  // const navigate = useNavigate();
 
   const [formLoginData, setFormLoginData] = useState({
     email: '',
@@ -20,6 +18,13 @@ function LogIn() {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     await Api.post('/users/login/', formLoginData);
+
+    setFormLoginData({
+      first_name: '',
+      last_name: '',
+      email: '',
+      password: ''
+    })
   }  
 
   return (
