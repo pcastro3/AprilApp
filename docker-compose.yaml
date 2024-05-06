@@ -5,23 +5,25 @@ services:
     environment:
       SA_PASSWORD: 'YourStrong0Passw0rd'
       ACCEPT_EULA: 'Y'
+    volumes:
+      - ./db/scripts:/scripts 
     ports:
-      - 127.0.0.1:1433:1433
+      - 1433:1433
   
   web:
-    build: ./web
+    build: 
+      context: ./web
+      dockerfile: Dockerfile
     ports:
-      - 127.0.0.1:3000:3000
-    depends_on:
-      - api
+      - 3080:3080
     volumes:
-      - ./web:/usr/share/node/src/april-react
+      - ./web:/usr/share/node
   
   api:
-    build: ./api
-    volumes:
-      - ./db/scripts:/scripts
-    ports:
-      - 127.0.0.1:8000:8000
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
     depends_on:
       - db
+    ports:
+      - 8080:8080

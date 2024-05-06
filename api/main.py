@@ -16,7 +16,8 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 origins = [
-    "http://127.0.0.1:3000",
+    # "http://127.0.0.1",
+    # "0.0.0.0",
     "http://localhost",
     "http://localhost:3000"
 ]
@@ -53,6 +54,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+@app.get("/")
+def root():
+    return {"Hello": "World"}
 
 @app.get("/confirm/redirect/{id}")
 def confirmation_path(id: int, db: Session = Depends(get_db)):

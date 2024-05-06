@@ -1,15 +1,15 @@
 FROM node:20-alpine
 
-WORKDIR /web
+WORKDIR /web/src/april-react
 
-COPY src/april-react/package.json package-lock.json ./
-
-RUN npm create vite@latest /app -- --template react -y
+COPY ./src/april-react/package.json ./src/april-react/package-lock.json ./
 
 RUN npm install
 
-COPY . /web
+COPY ./src/april-react .
 
-EXPOSE 3000
+COPY ./src/april-react/vite.config.js .
+
+EXPOSE 3080
 
 CMD [ "npm", "run", "dev" ]
