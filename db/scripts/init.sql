@@ -1,7 +1,7 @@
-CREATE DATABASE aprilDock
+CREATE DATABASE april
 GO
 
-USE aprilDock
+USE april
 GO
 
 CREATE TABLE users (

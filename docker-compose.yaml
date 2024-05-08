@@ -23,7 +23,7 @@ services:
     build: 
       context: ./api
       dockerfile: Dockerfile
-    depends_on:
-      - db
     ports:
       - 8080:8080
+    depends_on:
+      - db

@@ -16,8 +16,8 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 origins = [
-    # "http://127.0.0.1",
-    # "0.0.0.0",
+    "http://127.0.0.1",
+    "0.0.0.0",
     "http://localhost",
     "http://localhost:3000"
 ]
@@ -62,7 +62,7 @@ def root():
 @app.get("/confirm/redirect/{id}")
 def confirmation_path(id: int, db: Session = Depends(get_db)):
     # Redirect
-    webbrowser.open('http://127.0.0.1:3000/login')
+    webbrowser.open('http://localhost:3000/login')
     # Find user and change confirmation state
     db_user = db.query(models.Users).filter(models.Users.id == id).first()
     db_user.is_confirmed = 1
@@ -107,6 +107,6 @@ def login_user(user: UserLoginModel, db: Session = Depends(get_db)):
     db_user = db.query(models.Users).filter(models.Users.email == user.email).first()
     
     if db_user.email == user.email and db_user.password == user.password and db_user.is_confirmed == True:
-        webbrowser.open('http://127.0.0.1:3000/landing')
+        webbrowser.open('http://localhost:3000/landing')
     else:
         print('Invalid Credentials. Please Try Again')    
